@@ -1,5 +1,3 @@
-
-
 window.onload = function() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -18,6 +16,12 @@ window.onload = function() {
         new THREE.MeshBasicMaterial( { color: 0x555555 } ),
         new THREE.MeshBasicMaterial( { color: 0x444444 } ),
     ];
+    const hardleMaterials = [
+        new THREE.MeshBasicMaterial( { color: 0x00ff00 } ),
+        new THREE.MeshBasicMaterial( { color: 0x00dd00 } ),
+        new THREE.MeshBasicMaterial( { color: 0x00bb00 } ),
+        new THREE.MeshBasicMaterial( { color: 0x009900 } ),
+    ];
     const light = new THREE.DirectionalLight( 0xffffff, 1 );
     light.position.set(100, 100, 100);
     scene.add( light );
@@ -26,8 +30,29 @@ window.onload = function() {
     camera.lookAt(-100, 4, 0);
     const floor = [];
     const wall = [];
-    const player = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) );
+
+    const enemy1 = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x0000ff } ) );
+    const hardle  = [];
+    for (let i = 0; i < 25; ++i) {
+        hardle.push( new THREE.Mesh( geometry, hardleMaterials[ Math.floor(Math.random() * 4) ] ) );
+    }
+    const player   = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) );
+    enemy1.position.set(-60, 1, -10);
+
+    let xx = 0;
+    let yy = 0;
+    for (const h of hardle) {
+        h.position.set(-80 - xx * 1.2, 1 + yy * 1.2, -10);
+        xx += 1;
+        if (xx >= 5) {
+            yy += 1;
+            xx = 0;
+        }
+        scene.add( h );
+    }
+
     player.position.set(-100, 1, -10);
+    scene.add( enemy1 );
     scene.add( player );
 
     for (let z = -10; z < 0; ++z) {
@@ -53,7 +78,12 @@ window.onload = function() {
 
 
 
+    let playerBottomHitPosition = 1;
 
+    let isGroundHit = true;
+    let isBottomHit = false;
+    let isLeftHit = false;
+    let isRightHit = false;
     let isLeftKey = false;
     let isRightKey = false;
     document.addEventListener('keydown', event => onDocumentKeyDown(event), false);
@@ -84,8 +114,11 @@ window.onload = function() {
         case 39: isRightKey = true; break; //right
 
         case 90: //z
-            jumpSpeed = 1;
-            player.position.y += jumpSpeed;
+            if (isGroundHit) {
+                jumpSpeed = 1;
+                player.position.y += jumpSpeed;
+                isGroundHit = false;
+            }
             break;
         }
     }
@@ -98,29 +131,79 @@ window.onload = function() {
         renderer.setSize(window.innerWidth, window.innerHeight);    
     }
 
+    function hitcheckRight() {
+        for (const h of hardle) {
+            if (h.position.x - 0.5 >= player.position.x && player.position.x + 0.5 >= h.position.x - 0.5 &&
+                h.position.y + 0.5 >= player.position.y - 0.5 && player.position.y >= h.position.y - 0.5) {
+                isRightHit = true;
+                break;
+            }
+        }
+    }
+
+    function hitcheckLeft() {
+        for (const h of hardle) {
+            if (h.position.x + 0.5 >= player.position.x - 0.5 && player.position.x >= h.position.x + 0.5 &&
+                h.position.y + 0.5 >= player.position.y - 0.5 && player.position.y >= h.position.y - 0.5) {
+                isLeftHit = true;
+                break
+            }
+        }
+    }
+
+    function hitcheckBottom() {
+        for (const h of hardle) {
+            if (h.position.x + 0.5 >= player.position.x - 0.5 && player.position.x + 0.5 >= h.position.x - 0.5 &&
+                h.position.y + 0.5 >= player.position.y - 0.5 && player.position.y >= h.position.y - 0.5) {
+                isBottomHit = true;
+
+                playerBottomHitPosition = h.position.y + 1.01;
+                player.position.y = playerBottomHitPosition;
+                jumpSpeed = 0;
+                isGroundHit = true;
+                break;
+            }
+        }
+
+    }
     function animate() {
         requestAnimationFrame( animate );
 
-        if ( player.position.y > 1 ) {
+        isBottomHit = false;
+        isLeftHit = false;
+        isRightHit = false;
+        if ( player.position.y > 1) {
             jumpSpeed -= 0.05;
             player.position.y += jumpSpeed;
         }
+        if (jumpSpeed < 0) {
+            hitcheckBottom();
+        }
+
         if ( player.position.y < 1 ) {
             player.position.y = 1;
+            jumpSpeed = 0;
+            isGroundHit = true;
         }
 
         if ( isLeftKey ) {
-            camera.position.x -= 0.1;
-            camera.lookAt.x -= 0.1;
-            player.position.x -= 0.1;
+            hitcheckLeft();
+            if (isLeftHit == false) {
+                camera.position.x -= 0.1;
+                camera.lookAt.x -= 0.1;
+                player.position.x -= 0.1;
+            }
             player.rotation.x += 0.04;
             player.rotation.y += 0.04;
         }
 
         if ( isRightKey ) {
-            camera.position.x += 0.1;
-            camera.lookAt.x += 0.1;
-            player.position.x += 0.1;
+            hitcheckRight();
+            if (isRightHit == false) {
+                camera.position.x += 0.1;
+                camera.lookAt.x += 0.1;
+                player.position.x += 0.1;
+            }
             player.rotation.x += 0.04;
             player.rotation.y += 0.04;
         }
