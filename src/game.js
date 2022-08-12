@@ -26,18 +26,20 @@ window.onload = function() {
     light.position.set(100, 100, 100);
     scene.add( light );
 
-    camera.position.set(-100, 4, 6);
-    camera.lookAt(-100, 4, 0);
+    camera.position.set(-110, 4, -10);
+    camera.lookAt(-100, 4, -10);
     const floor = [];
     const wall = [];
 
     const enemy1 = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x0000ff } ) );
+    const enemy2 = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
     const hardle  = [];
     for (let i = 0; i < 25; ++i) {
         hardle.push( new THREE.Mesh( geometry, hardleMaterials[ Math.floor(Math.random() * 4) ] ) );
     }
     const player   = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) );
-    enemy1.position.set(-60, 1, -10);
+    enemy1.position.set(-100, 1, -4);
+    enemy2.position.set(-100, 1, -7);
 
     let xx = 0;
     let yy = 0;
@@ -53,10 +55,11 @@ window.onload = function() {
 
     player.position.set(-100, 1, -10);
     scene.add( enemy1 );
+    scene.add( enemy2 );
     scene.add( player );
 
     for (let z = -10; z < 0; ++z) {
-    for (let x = -100; x < 100; ++x) {
+    for (let x = -100; x < 500; ++x) {
         const cube = new THREE.Mesh( geometry, backgroundMaterials[ Math.floor(Math.random() * 8) ] );
         cube.position.set(x * 1.2, 0, z * 1.2);
         scene.add( cube );
@@ -65,7 +68,7 @@ window.onload = function() {
     }
 
     for (let y = 0; y < 15; ++y) {
-    for (let x = -100; x < 100; ++x) {
+    for (let x = -100; x < 500; ++x) {
         const cube = new THREE.Mesh( geometry, backgroundMaterials[ Math.floor(Math.random() * 8) ] );
         cube.position.set(x * 1.2, y * 1.2, -10 * 1.2);
         scene.add( cube );
@@ -80,6 +83,10 @@ window.onload = function() {
 
     let playerBottomHitPosition = 1;
 
+    let enemy1Speed = 0.0;
+    let enemy2Speed = 0.0;
+    let enemy2SpeedSpeed = 0.009;
+    let playerSpeed = 0.0;
     let isGroundHit = true;
     let isBottomHit = false;
     let isLeftHit = false;
@@ -94,11 +101,15 @@ window.onload = function() {
         switch (event.keyCode) {
     
         case 16: break;
-        case 38: break;
-        case 40: break;
+        case 40:
+          isLeftKey = false;
+          break;
+        case 38: 
+          isRightKey = false;
+          break;
 
-        case 37: isLeftKey = false; break; //left
-        case 39: isRightKey = false; break; //right
+        case 37:  break; //left
+        case 39:  break; //right
         }
     }
     function onDocumentKeyDown(event) {
@@ -106,12 +117,14 @@ window.onload = function() {
         switch (event.keyCode) {
     
         case 16: break; 
-        case 38:
-            break;
         case 40:
+            isLeftKey = true;
             break;
-        case 37: isLeftKey = true; break; //left
-        case 39: isRightKey = true; break; //right
+        case 38:
+            isRightKey = true;
+            break;
+        case 37:  break; //left
+        case 39:  break; //right
 
         case 90: //z
             if (isGroundHit) {
@@ -188,25 +201,33 @@ window.onload = function() {
 
         if ( isLeftKey ) {
             hitcheckLeft();
-            if (isLeftHit == false) {
-                camera.position.x -= 0.1;
-                camera.lookAt.x -= 0.1;
-                player.position.x -= 0.1;
-            }
+            playerSpeed -= 0.01;
+            // if (isLeftHit == false) {
+                // camera.position.x -= playerSpeed;
+                // camera.lookAt.x -= playerSpeed;
+                // player.position.x -= playerSpeed;
+            // }
             player.rotation.x += 0.04;
             player.rotation.y += 0.04;
         }
 
         if ( isRightKey ) {
             hitcheckRight();
-            if (isRightHit == false) {
-                camera.position.x += 0.1;
-                camera.lookAt.x += 0.1;
-                player.position.x += 0.1;
-            }
+            playerSpeed += 0.01;
+            // if (isRightHit == false) {
+            // }
             player.rotation.x += 0.04;
             player.rotation.y += 0.04;
         }
+        camera.position.x += playerSpeed;
+        camera.lookAt.x += playerSpeed;
+        player.position.x += playerSpeed;
+
+        enemy1Speed += 0.007;
+        enemy1.position.x += enemy1Speed;
+        enemy2Speed += enemy2SpeedSpeed;
+        enemy2.position.x += enemy2Speed;
+        enemy2SpeedSpeed -= 0.00002;
 
         renderer.render( scene, camera );
     };
