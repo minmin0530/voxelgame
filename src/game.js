@@ -66,11 +66,11 @@ class Game {
                     memberSpeed[i] += 0.01;
                     memberMesh[i].position.x += memberSpeed[i];
                 }
-                if (data.id == currentPlayerId) {
-                    camera.position.x = memberMesh[i].position.x - 10;
-                    camera.lookAt.x = memberMesh[i].position.x;
+                // if (data.id == currentPlayerId) {
+                //     camera.position.x = memberMesh[i].position.x - 10;
+                //     camera.lookAt.x = memberMesh[i].position.x;
 
-                }
+                // }
                 i += 1;
             }
         });
@@ -329,8 +329,8 @@ class Game {
                 // player.rotation.x += 0.04;
                 // player.rotation.y += 0.04;
             }
-            // camera.position.x += playerSpeed;
-            // camera.lookAt.x += playerSpeed;
+            camera.position.x = player.position.x - 10;
+            camera.lookAt.x = player.position.x;
             // player.position.x += playerSpeed;
 
             // enemy1Speed += 0.007;
