@@ -64,6 +64,11 @@ class Game {
                     memberSpeed[i] += 0.1;
                     memberMesh[i].position.x += memberSpeed[i];
                 }
+                if (data.id == currentPlayerId) {
+                    camera.position.x += memberSpeed[i];
+                    camera.lookAt.x += memberSpeed[i];
+
+                }
                 i += 1;
             }
         });
@@ -304,27 +309,27 @@ class Game {
             if ( isLeftKey ) {
                 socket.emit("pushUpKey",{id: currentPlayerId, color: currentPlayerColor});
 //                hitcheckLeft();
-                playerSpeed -= 0.01;
+                // playerSpeed -= 0.01;
                 // if (isLeftHit == false) {
                     // camera.position.x -= playerSpeed;
                     // camera.lookAt.x -= playerSpeed;
                     // player.position.x -= playerSpeed;
                 // }
-                player.rotation.x += 0.04;
-                player.rotation.y += 0.04;
+                // player.rotation.x += 0.04;
+                // player.rotation.y += 0.04;
             }
 
             if ( isRightKey ) {
 //                hitcheckRight();
-                playerSpeed += 0.01;
+                // playerSpeed += 0.01;
                 // if (isRightHit == false) {
                 // }
-                player.rotation.x += 0.04;
-                player.rotation.y += 0.04;
+                // player.rotation.x += 0.04;
+                // player.rotation.y += 0.04;
             }
-            camera.position.x += playerSpeed;
-            camera.lookAt.x += playerSpeed;
-            player.position.x += playerSpeed;
+            // camera.position.x += playerSpeed;
+            // camera.lookAt.x += playerSpeed;
+            // player.position.x += playerSpeed;
 
             // enemy1Speed += 0.007;
             // enemy1.position.x += enemy1Speed;
