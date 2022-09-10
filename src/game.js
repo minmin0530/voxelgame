@@ -62,18 +62,17 @@ class Game {
         socket.on('pushUpKey', data => {
             let i = 0;
             for (const id of memberId) {
-                // if (data.id == id) {
+                if (data.id == id) {
                     memberSpeed[i] += 0.1;
                     memberMesh[i].position.x += memberSpeed[i];
-                // }
-                // if (data.id == currentPlayerId) {
+                }
+                if (data.id == currentPlayerId) {
                     camera.position.x += memberSpeed[i];
                     camera.lookAt.x += memberSpeed[i];
 
-                // }
+                }
                 i += 1;
             }
-            renderer.render( scene, camera );
         });
 
     const scene = new THREE.Scene();
@@ -310,8 +309,6 @@ class Game {
             // }
 
             if ( isLeftKey ) {
-                console.log(22222);
-                socket.emit('pushUpKey', {roomid: roomid, id: currentPlayerId, color: currentPlayerColor});
 //                hitcheckLeft();
                 // playerSpeed -= 0.01;
                 // if (isLeftHit == false) {
@@ -324,6 +321,7 @@ class Game {
             }
 
             if ( isRightKey ) {
+                socket.emit('pushUpKey', {roomid: roomid, id: currentPlayerId, color: currentPlayerColor});
 //                hitcheckRight();
                 // playerSpeed += 0.01;
                 // if (isRightHit == false) {
