@@ -63,7 +63,7 @@ class Game {
             let i = 0;
             for (const id of memberId) {
                 if (data.id == id) {
-                    memberSpeed[i] += 0.1;
+                    memberSpeed[i] += 0.01;
                     memberMesh[i].position.x += memberSpeed[i];
                 }
                 if (data.id == currentPlayerId) {
