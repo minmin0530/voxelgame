@@ -67,8 +67,8 @@ class Game {
                     memberMesh[i].position.x += memberSpeed[i];
                 }
                 if (data.id == currentPlayerId) {
-                    camera.position.x += memberSpeed[i];
-                    camera.lookAt.x += memberSpeed[i];
+                    camera.position.x += memberMesh[i].position.x - 110;
+                    camera.lookAt.x += memberMesh[i].position.x - 100;
 
                 }
                 i += 1;
