@@ -61,6 +61,8 @@ class Game {
         });
         socket.on('pushUpKey', data => {
             let i = 0;
+            console.log(3333);
+            console.log(data);
             for (const id of memberId) {
                 if (data.id == id) {
                     memberSpeed[i] += 0.1;
