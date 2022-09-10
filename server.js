@@ -296,6 +296,7 @@ io.on('connection', socket => {
     updateRoomMember(data);
   });
   socket.on('pushUpKey', data => {
+    console.log(1111);
     io.to(data.roomid).emit('pushUpKey', data);
   });
 });
