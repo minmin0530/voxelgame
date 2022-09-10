@@ -291,12 +291,10 @@ app.post('/', (req, res) => {
 io.on('connection', socket => {
 
   socket.on('getUserId', data => {
-    console.log(data);
     socket.join(data.roomid);
     updateRoomMember(data);
   });
   socket.on('pushUpKey', data => {
-    console.log(data.roomid);
     io.to(data.roomid).emit('pushUpKey', data);
   });
 });

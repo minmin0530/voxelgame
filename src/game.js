@@ -23,7 +23,7 @@ class Game {
             console.log('updateRoomData');
             console.log(data);
             let i = 0;
-            roomid = data.roomid;
+            roomid = data._id;
             for (const color of data.membercolor) {
                 let exist = false;
                 for (const existColor of memberColor) {
@@ -61,8 +61,6 @@ class Game {
         });
         socket.on('pushUpKey', data => {
             let i = 0;
-            console.log(3333);
-            console.log(data);
             for (const id of memberId) {
                 if (data.id == id) {
                     memberSpeed[i] += 0.1;
