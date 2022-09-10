@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 const http = require('http').Server(app);
+const fs = require('fs');
 const server = require('https').createServer({
   key: fs.readFileSync(__dirname + '/server_withpass.key'),
   cert: fs.readFileSync(__dirname + '/server.crt'),
