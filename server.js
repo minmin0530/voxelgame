@@ -290,15 +290,13 @@ app.post('/', (req, res) => {
 
 io.on('connection', socket => {
 
-  let roomid = null;
   socket.on('getUserId', data => {
     console.log(data);
     socket.join(data.roomid);
-    roomid = data.roomid;
     updateRoomMember(data);
   });
   socket.on('pushUpKey', data => {
-    io.to(roomid).emit('pushUpKey', data);
+    io.to(data.roomid).emit('pushUpKey', data);
   });
 });
 

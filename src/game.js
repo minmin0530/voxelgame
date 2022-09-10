@@ -1,6 +1,7 @@
 class Game {
     constructor(socket) {
 
+        let roomid = null;
         let currentPlayerColor = null;
         let currentPlayerPositionZ = 0;
         let currentPlayerId = null;
@@ -22,6 +23,7 @@ class Game {
             console.log('updateRoomData');
             console.log(data);
             let i = 0;
+            roomid = data.roomid;
             for (const color of data.membercolor) {
                 let exist = false;
                 for (const existColor of memberColor) {
@@ -307,7 +309,7 @@ class Game {
             // }
 
             if ( isLeftKey ) {
-                socket.emit("pushUpKey",{id: currentPlayerId, color: currentPlayerColor});
+                socket.emit("pushUpKey",{roomid: roomid, id: currentPlayerId, color: currentPlayerColor});
 //                hitcheckLeft();
                 // playerSpeed -= 0.01;
                 // if (isLeftHit == false) {
