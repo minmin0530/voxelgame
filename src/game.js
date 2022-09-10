@@ -73,6 +73,7 @@ class Game {
                 // }
                 i += 1;
             }
+            renderer.render( scene, camera );
         });
 
     const scene = new THREE.Scene();
@@ -309,7 +310,8 @@ class Game {
             // }
 
             if ( isLeftKey ) {
-                socket.emit("pushUpKey",{roomid: roomid, id: currentPlayerId, color: currentPlayerColor});
+                console.log(22222);
+                socket.emit('pushUpKey', {roomid: roomid, id: currentPlayerId, color: currentPlayerColor});
 //                hitcheckLeft();
                 // playerSpeed -= 0.01;
                 // if (isLeftHit == false) {
