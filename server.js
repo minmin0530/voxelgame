@@ -297,6 +297,9 @@ io.on('connection', socket => {
     roomid = data.roomid;
     updateRoomMember(data);
   });
+  socket.on('pushUpKey', data => {
+    io.to(roomid).emit('pushUpKey', data);
+  });
 });
 
 server.listen(port, () => {

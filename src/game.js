@@ -3,7 +3,11 @@ class Game {
 
         let currentPlayerColor = null;
         let currentPlayerPositionZ = 0;
+        let currentPlayerId = null;
         let memberColor = [];
+        let memberMesh = [];
+        let memberSpeed = [];
+        let memberId = [];
         let z = -2;
 
         socket.on('connected', data => {
@@ -17,6 +21,7 @@ class Game {
         socket.on('updateRoomData', data => {
             console.log('updateRoomData');
             console.log(data);
+            let i = 0;
             for (const color of data.membercolor) {
                 let exist = false;
                 for (const existColor of memberColor) {
@@ -26,17 +31,40 @@ class Game {
                     }
                 }
                 if (exist == false) {
+                    memberId.push( data.memberid[i] );
                     if (currentPlayerColor == color) {
+                        currentPlayerId = data.memberid[i]
                         currentPlayerPositionZ = z;
                         camera.position.set(-110, 4, currentPlayerPositionZ);
-                        camera.lookAt(-100, 4, currentPlayerPositionZ);                    
+                        camera.lookAt(-100, 4, currentPlayerPositionZ);
+                        player     = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: color } ) );
+                        player.position.set(-100, 1, z);
+                        scene.add(player);
+                        memberColor.push(color);                    
+                        memberMesh.push(player);
+                        memberSpeed.push(0);
+                    } else {
+
+                        const enemy     = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: color } ) );
+                        enemy.position.set(-100, 1, z);
+                        scene.add(enemy);
+                        memberColor.push(color);
+                        memberMesh.push(enemy);
+                        memberSpeed.push(0);
                     }
-                    player     = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: color } ) );
-                    player.position.set(-100, 1, z);
-                    scene.add( player );
-                    memberColor.push(color);
                     z -= 2;
+                    i += 1;
                 }
+            }
+        });
+        socket.on('pushUpKey', data => {
+            let i = 0;
+            for (const id of memberId) {
+                if (data.id == id) {
+                    memberSpeed[i] += 0.1;
+                    memberMesh[i].position.x += memberSpeed[i];
+                }
+                i += 1;
             }
         });
 
@@ -274,6 +302,7 @@ class Game {
             // }
 
             if ( isLeftKey ) {
+                socket.emit("pushUpKey",{id: currentPlayerId, color: currentPlayerColor});
 //                hitcheckLeft();
                 playerSpeed -= 0.01;
                 // if (isLeftHit == false) {
