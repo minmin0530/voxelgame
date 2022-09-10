@@ -1,9 +1,84 @@
-window.onload = function() {
+class Game {
+    constructor(socket) {
+
+        let currentPlayerColor = null;
+        let currentPlayerPositionZ = 0;
+        let memberColor = [];
+        let z = -2;
+
+        socket.on('connected', data => {
+            console.log("connected" + data);
+        });
+
+        socket.on('getUserId', data => {
+            console.log(data);
+        });
+
+        socket.on('updateRoomData', data => {
+            console.log('updateRoomData');
+            console.log(data);
+            for (const color of data.membercolor) {
+                let exist = false;
+                for (const existColor of memberColor) {
+                    if (color == existColor) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (exist == false) {
+                    if (currentPlayerColor == color) {
+                        currentPlayerPositionZ = z;
+                        camera.position.set(-110, 4, currentPlayerPositionZ);
+                        camera.lookAt(-100, 4, currentPlayerPositionZ);                    
+                    }
+                    player     = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: color } ) );
+                    player.position.set(-100, 1, z);
+                    scene.add( player );
+                    memberColor.push(color);
+                    z -= 2;
+                }
+            }
+        });
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
+
+
+    const starttime = document.createElement("time");
+    var START_TIME;// = (new Date("2022-08-30 22:30:00")).getTime();
+    var playerColor;
+    var player;
+    starttime.innerHTML = "";
+    starttime.style.color = "#00ff00";
+    starttime.style.position = "absolute";
+    starttime.style.top = "150px";
+    starttime.style.textAlign = "center";
+    starttime.style.width = "100%";
+    starttime.style.fontSize = "60px"
+    document.body.appendChild( starttime );
+
+    fetch("/gametime").then(res => res.json()).then(data => {
+        START_TIME = new Date(data.time.substring(0, 10) + " " + data.time.substring(10, 18)).getTime();
+        currentPlayerColor = data.color;
+        // player     = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: data.color } ) );
+        // player.position.set(-100, 1, -10);
+        // scene.add( player );
+        console.log(data);
+        socket.emit('getUserId', data);
+    });
+
+    // const datetime = document.createElement("time");
+    // datetime.innerHTML = Date.now();
+    // datetime.style.color = "red";
+    // datetime.style.position = "absolute";
+    // datetime.style.top = "200px";
+    // datetime.style.textAlign = "center";
+    // datetime.style.width = "100%";
+    // datetime.style.fontSize = "60px"
+    // document.body.appendChild( datetime );
 
     const geometry = new THREE.BoxGeometry( 1, 1, 1 );
     const backgroundMaterials = [
@@ -26,37 +101,32 @@ window.onload = function() {
     light.position.set(100, 100, 100);
     scene.add( light );
 
-    camera.position.set(-110, 4, -10);
-    camera.lookAt(-100, 4, -10);
     const floor = [];
     const wall = [];
 
-    const enemy1 = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x0000ff } ) );
-    const enemy2 = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
-    const hardle  = [];
-    for (let i = 0; i < 25; ++i) {
-        hardle.push( new THREE.Mesh( geometry, hardleMaterials[ Math.floor(Math.random() * 4) ] ) );
-    }
-    const player   = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) );
-    enemy1.position.set(-100, 1, -4);
-    enemy2.position.set(-100, 1, -7);
+    // const enemy1 = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x0000ff } ) );
+    // const enemy2 = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
+    // const hardle  = [];
+    // for (let i = 0; i < 25; ++i) {
+    //     hardle.push( new THREE.Mesh( geometry, hardleMaterials[ Math.floor(Math.random() * 4) ] ) );
+    // }
+    // enemy1.position.set(-100, 1, -4);
+    // enemy2.position.set(-100, 1, -7);
 
-    let xx = 0;
-    let yy = 0;
-    for (const h of hardle) {
-        h.position.set(-80 - xx * 1.2, 1 + yy * 1.2, -10);
-        xx += 1;
-        if (xx >= 5) {
-            yy += 1;
-            xx = 0;
-        }
-        scene.add( h );
-    }
+    // let xx = 0;
+    // let yy = 0;
+    // for (const h of hardle) {
+    //     h.position.set(-80 - xx * 1.2, 1 + yy * 1.2, -10);
+    //     xx += 1;
+    //     if (xx >= 5) {
+    //         yy += 1;
+    //         xx = 0;
+    //     }
+    //     scene.add( h );
+    // }
 
-    player.position.set(-100, 1, -10);
-    scene.add( enemy1 );
-    scene.add( enemy2 );
-    scene.add( player );
+    // scene.add( enemy1 );
+    // scene.add( enemy2 );
 
     for (let z = -10; z < 0; ++z) {
     for (let x = -100; x < 500; ++x) {
@@ -182,55 +252,61 @@ window.onload = function() {
     function animate() {
         requestAnimationFrame( animate );
 
-        isBottomHit = false;
-        isLeftHit = false;
-        isRightHit = false;
-        if ( player.position.y > 1) {
-            jumpSpeed -= 0.05;
-            player.position.y += jumpSpeed;
-        }
-        if (jumpSpeed < 0) {
-            hitcheckBottom();
-        }
+        let t = String(START_TIME - Date.now());
+        starttime.innerHTML = "スタートまで<br>" + t.substring(0, t.length - 3) + "." + t.substring(t.length - 3, t.length) + "秒";
 
-        if ( player.position.y < 1 ) {
-            player.position.y = 1;
-            jumpSpeed = 0;
-            isGroundHit = true;
-        }
-
-        if ( isLeftKey ) {
-            hitcheckLeft();
-            playerSpeed -= 0.01;
-            // if (isLeftHit == false) {
-                // camera.position.x -= playerSpeed;
-                // camera.lookAt.x -= playerSpeed;
-                // player.position.x -= playerSpeed;
+        if (true) {
+            // isBottomHit = false;
+            // isLeftHit = false;
+            // isRightHit = false;
+            // if ( player.position.y > 1) {
+            //     jumpSpeed -= 0.05;
+            //     player.position.y += jumpSpeed;
             // }
-            player.rotation.x += 0.04;
-            player.rotation.y += 0.04;
-        }
-
-        if ( isRightKey ) {
-            hitcheckRight();
-            playerSpeed += 0.01;
-            // if (isRightHit == false) {
+            // if (jumpSpeed < 0) {
+            //     hitcheckBottom();
             // }
-            player.rotation.x += 0.04;
-            player.rotation.y += 0.04;
+
+            // if ( player.position.y < 1 ) {
+            //     player.position.y = 1;
+            //     jumpSpeed = 0;
+            //     isGroundHit = true;
+            // }
+
+            if ( isLeftKey ) {
+//                hitcheckLeft();
+                playerSpeed -= 0.01;
+                // if (isLeftHit == false) {
+                    // camera.position.x -= playerSpeed;
+                    // camera.lookAt.x -= playerSpeed;
+                    // player.position.x -= playerSpeed;
+                // }
+                player.rotation.x += 0.04;
+                player.rotation.y += 0.04;
+            }
+
+            if ( isRightKey ) {
+//                hitcheckRight();
+                playerSpeed += 0.01;
+                // if (isRightHit == false) {
+                // }
+                player.rotation.x += 0.04;
+                player.rotation.y += 0.04;
+            }
+            camera.position.x += playerSpeed;
+            camera.lookAt.x += playerSpeed;
+            player.position.x += playerSpeed;
+
+            // enemy1Speed += 0.007;
+            // enemy1.position.x += enemy1Speed;
+            // enemy2Speed += enemy2SpeedSpeed;
+            // enemy2.position.x += enemy2Speed;
+            // enemy2SpeedSpeed -= 0.00002;
         }
-        camera.position.x += playerSpeed;
-        camera.lookAt.x += playerSpeed;
-        player.position.x += playerSpeed;
-
-        enemy1Speed += 0.007;
-        enemy1.position.x += enemy1Speed;
-        enemy2Speed += enemy2SpeedSpeed;
-        enemy2.position.x += enemy2Speed;
-        enemy2SpeedSpeed -= 0.00002;
-
         renderer.render( scene, camera );
     };
 
     animate();
+
+    }
 }

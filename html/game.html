@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.2/socket.io.js"></script>
+        <script>
+            window.onload = function() {
+                const socket = io();
+                const game = new Game(socket);
+            }
+        </script>
+        <link rel="stylesheet" href="style.css" />
+        <title>voxel</title>
+    </head>
+    <body>
+        <script src="three.min.js"></script>
+        <script src="game.js"></script>
+    </body>
+</html>
